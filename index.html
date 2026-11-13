@@ -1219,7 +1219,7 @@ html[data-hc="1"] :focus-visible{outline:3px solid #ffe14d;outline-offset:2px}
     return { m: +m[1] * 60 + +m[2], s: m[1].padStart(2, '0') + ':' + m[2] };
   }
   function updateStatus() {
-    var el = $('#status'); if (!el) return;
+    var el = $('#status'); if (!el) return; if (!S.hours_known) { el.classList.remove('closed', 'soon'); $('span', el).textContent = 'Часы работы уточняйте по телефону'; return; }
     var now = mskNow(), dow = now.getDay(), mins = now.getHours() * 60 + now.getMinutes();
     var r = dayRange(dow), open = r && mins >= r.o && mins < r.c;
     var soon = false;
@@ -1241,7 +1241,7 @@ html[data-hc="1"] :focus-visible{outline:3px solid #ffe14d;outline-offset:2px}
     $('span', el).textContent = txt;
   }
   function buildHours() {
-    var tb = $('#hoursBody'); if (!tb) return;
+    var tb = $('#hoursBody'); if (!tb) return; if (!S.hours_known) { tb.innerHTML = '<tr><td colspan="2">Часы работы уточняйте по телефону</td></tr>'; return; }
     var h = S.hours || {}, dow = mskNow().getDay(); tb.innerHTML = '';
     for (var i = 1; i <= 7; i++) {
       var d = i % 7, key = DAYS[d], val = h[key];
@@ -1361,8 +1361,8 @@ html[data-hc="1"] :focus-visible{outline:3px solid #ffe14d;outline-offset:2px}
   /* Обратная сторона плашки «Записаться на приём» — три вида: обратный звонок (cb), письмо (mail), телефон (tel).
      Показывается один, остальные скрыты; «Назад» переворачивает плашку обратно. Тот же 3D-переворот. */
   function telHTML() {
-    var h = S.hours || {}, dow = mskNow().getDay(), rows = '';
-    for (var i = 1; i <= 7; i++) {
+    var h = S.hours || {}, dow = mskNow().getDay(), rows = S.hours_known ? '' : '<tr><td colspan="2">Часы работы уточняйте по телефону</td></tr>';
+    for (var i = 1; i <= 7 && S.hours_known; i++) {
       var d = i % 7, key = DAYS[d], r = parseRange(h[key]);
       rows += '<tr class="' + (d === dow ? 'today ' : '') + (r ? '' : 'off') + '"><td data-today="' + esch(t('hm_today')) + '">' + esch(t('day_' + key)) + '</td><td>' +
         esch(r ? (r.os + ' – ' + r.cs) : t((h.noappt || []).indexOf(key) >= 0 ? 'hm_noappt' : 'hm_closed')) + '</td></tr>';
